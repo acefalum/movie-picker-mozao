@@ -1,0 +1,388 @@
+{
+  "movies": [
+    {
+      "tmdbId": 16859,
+      "title": "O Serviço de Entregas da Kiki",
+      "releaseYear": "1989",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 76826,
+      "title": "O Túmulo dos Vagalumes",
+      "releaseYear": "2005",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 149870,
+      "title": "Vidas ao Vento",
+      "releaseYear": "2013",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 913816,
+      "title": "Marte Um",
+      "releaseYear": "2022",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 682507,
+      "title": "Um Lugar Bem Longe Daqui",
+      "releaseYear": "2022",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 1056380,
+      "title": "A Mesa de Café",
+      "releaseYear": "2023",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 378064,
+      "title": "A Voz do Silêncio",
+      "releaseYear": "2016",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 24,
+      "title": "Kill Bill: Volume 1",
+      "releaseYear": "2003",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 68718,
+      "title": "Django Livre",
+      "releaseYear": "2012",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 16869,
+      "title": "Bastardos Inglórios",
+      "releaseYear": "2009",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 746036,
+      "title": "O Dublê",
+      "releaseYear": "2024",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 105,
+      "title": "De Volta para o Futuro",
+      "releaseYear": "1985",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 141,
+      "title": "Donnie Darko",
+      "releaseYear": "2001",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 1230684,
+      "title": "O Menu",
+      "releaseYear": "N/A",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 986056,
+      "title": "Thunderbolts*",
+      "releaseYear": "2025",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 9615,
+      "title": "Velozes e Furiosos: Desafio em Tóquio",
+      "releaseYear": "2006",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 35640,
+      "title": "Todo Mundo Hispânico",
+      "releaseYear": "2009",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 6795,
+      "title": "Zathura: Uma Aventura Espacial",
+      "releaseYear": "2005",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 1098088,
+      "title": "Passagrana",
+      "releaseYear": "2024",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 515001,
+      "title": "Jojo Rabbit",
+      "releaseYear": "2019",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 5915,
+      "title": "Na Natureza Selvagem",
+      "releaseYear": "2007",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 46738,
+      "title": "Incêndios",
+      "releaseYear": "2010",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 703731,
+      "title": "A Separation",
+      "releaseYear": "2019",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 965150,
+      "title": "Aftersun",
+      "releaseYear": "2022",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 73,
+      "title": "A Outra História Americana",
+      "releaseYear": "1998",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 517814,
+      "title": "Cafarnaum",
+      "releaseYear": "2018",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 603,
+      "title": "Matrix",
+      "releaseYear": "1999",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 5156,
+      "title": "Ladrões de Bicicleta",
+      "releaseYear": "1948",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 1233413,
+      "title": "Pecadores",
+      "releaseYear": "2025",
+      "status": "to-watch"
+    },
+    {
+      "tmdbId": 157336,
+      "title": "Interestelar",
+      "releaseYear": "2014",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 129,
+      "title": "A Viagem de Chihiro",
+      "releaseYear": "2001",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 666,
+      "title": "Central do Brasil",
+      "releaseYear": "1998",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 207,
+      "title": "Sociedade dos Poetas Mortos",
+      "releaseYear": "1989",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 550,
+      "title": "Clube da Luta",
+      "releaseYear": "1999",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 4935,
+      "title": "O Castelo Animado",
+      "releaseYear": "2004",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 52345,
+      "title": "Lisbela e o Prisioneiro",
+      "releaseYear": "2003",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 313369,
+      "title": "La La Land: Cantando Estações",
+      "releaseYear": "2016",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 59990,
+      "title": "O Pagador de Promessas",
+      "releaseYear": "1962",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 515908,
+      "title": "Morto Não Fala",
+      "releaseYear": "2019",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 194,
+      "title": "O Fabuloso Destino de Amélie Poulain",
+      "releaseYear": "2001",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 310569,
+      "title": "Que Horas Ela Volta?",
+      "releaseYear": "2015",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 756999,
+      "title": "O Telefone Preto",
+      "releaseYear": "2022",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 7980,
+      "title": "Um Olhar do Paraíso",
+      "releaseYear": "2009",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 530385,
+      "title": "Midsommar: O Mal Não Espera a Noite",
+      "releaseYear": "2019",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 508883,
+      "title": "O Menino e a Garça",
+      "releaseYear": "2023",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 493922,
+      "title": "Hereditário",
+      "releaseYear": "2018",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 1099413,
+      "title": "O Auto da Compadecida 2",
+      "releaseYear": "2024",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 694,
+      "title": "O Iluminado",
+      "releaseYear": "1980",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 185,
+      "title": "Laranja Mecânica",
+      "releaseYear": "1971",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 978796,
+      "title": "O Homem do Saco",
+      "releaseYear": "2024",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 1148046,
+      "title": "Uma Família Feliz",
+      "releaseYear": "2024",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 1124620,
+      "title": "O Macaco",
+      "releaseYear": "2025",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 38,
+      "title": "Brilho Eterno de uma Mente sem Lembranças",
+      "releaseYear": "2004",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 1254786,
+      "title": "A Lista da Minha Vida",
+      "releaseYear": "2025",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 1000837,
+      "title": "Ainda Estou Aqui",
+      "releaseYear": "2024",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 974576,
+      "title": "Conclave",
+      "releaseYear": "2024",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 698508,
+      "title": "Amor de Redenção",
+      "releaseYear": "2022",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 680,
+      "title": "Pulp Fiction: Tempo de Violência",
+      "releaseYear": "1994",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 31011,
+      "title": "Sr. Ninguém",
+      "releaseYear": "2009",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 381283,
+      "title": "mãe!",
+      "releaseYear": "2017",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 27205,
+      "title": "A Origem",
+      "releaseYear": "2010",
+      "status": "watched"
+    },
+    {
+      "tmdbId": 158921,
+      "title": "Reflexões de um Liquidificador",
+      "releaseYear": "2010",
+      "status": "watched"
+    }
+  ],
+  "ratings": {
+    "Maná": {
+      "129": 5,
+      "207": 5,
+      "550": 5,
+      "666": 4,
+      "157336": 5,
+      "Acompanhante perfeita": 1,
+      "Serviços de entrega da Kiki": 1
+    },
+    "Mandinha": {}
+  }
+}
