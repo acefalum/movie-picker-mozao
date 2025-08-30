@@ -269,35 +269,48 @@
             }
             
             // --- FUNÇÃO createMovieCard MODIFICADA ---
-            async function createMovieCard(movie) {
-                const details = await fetchMovieDetails(movie.tmdbId);
-                const card = document.createElement('div');
-                card.classList.add('movie-card');
-
-                let actionsHTML = '';
-                if (isEditor) { // Só mostra os botões se for editor
-                    actionsHTML = movie.status === 'to-watch'
-                        ? `<div class="card-actions"><button class="card-action-btn mark-watched-btn" title="Marcar como Assistido">✓</button><button class="card-action-btn remove-btn" title="Remover Filme">🗑️</button></div>`
-                        : `<div class="card-actions"><button class="card-action-btn remove-btn" title="Remover Filme">🗑️</button></div>`;
-                }
-                
-                let ratingsHTML = '';
-                if (movie.status === 'watched') {
-                    const r1 = ratings['Maná']?.[movie.tmdbId] || 0;
-                    const r2 = ratings['Mandinha']?.[movie.tmdbId] || 0;
-                    ratingsHTML = `<div class="watched-movie-ratings"><p><strong>Notas:</strong> Maná: ${'★'.repeat(r1)}${'☆'.repeat(5-r1)} | Mandinha: ${'★'.repeat(r2)}${'☆'.repeat(5-r2)}</p></div>`;
-                }
-                
-                card.innerHTML = `${actionsHTML}<img src="${d.poster||'https://via.placeholder.com/200x300.png'}" alt="${d.title}"><div class="movie-info"><h3>${d.title} (${d.releaseYear})</h3><p><strong>Diretor:</strong> ${d.director}</p><p><strong>Duração:</strong> ${d.runtime}</p><p><strong>Gênero:</strong> ${d.genre}</p>${r}</div>`;
-                
-                const markBtn = card.querySelector('.mark-watched-btn');
-                if (markBtn) markBtn.addEventListener('click', e => { e.stopPropagation(); markMovieAsWatched(movie.tmdbId); });
-                
-                const removeBtn = card.querySelector('.remove-btn');
-                if (removeBtn) removeBtn.addEventListener('click', e => { e.stopPropagation(); if (confirm(`Remover "${details.title}"?`)) removeMovie(movie.tmdbId); });
-                
-                return card;
+           // SUBSTITUA A SUA FUNÇÃO createMovieCard POR ESTA:
+        async function createMovieCard(movie) {
+            const details = await fetchMovieDetails(movie.tmdbId);
+            const card = document.createElement('div');
+            card.classList.add('movie-card');
+        
+            let actionsHTML = '';
+            if (isEditor) {
+                actionsHTML = movie.status === 'to-watch'
+                    ? `<div class="card-actions"><button class="card-action-btn mark-watched-btn" title="Marcar como Assistido">✓</button><button class="card-action-btn remove-btn" title="Remover Filme">🗑️</button></div>`
+                    : `<div class="card-actions"><button class="card-action-btn remove-btn" title="Remover Filme">🗑️</button></div>`;
             }
+        
+            let ratingsHTML = '';
+            if (movie.status === 'watched') {
+                const r1 = ratings['Maná']?.[movie.tmdbId] || 0;
+                const r2 = ratings['Mandinha']?.[movie.tmdbId] || 0;
+                ratingsHTML = `<div class="watched-movie-ratings"><p><strong>Notas:</strong> Maná: ${'★'.repeat(r1)}${'☆'.repeat(5-r1)} | Mandinha: ${'★'.repeat(r2)}${'☆'.repeat(5-r2)}</p></div>`;
+            }
+        
+            // --- A CORREÇÃO ESTÁ NA LINHA ABAIXO ---
+            // Trocamos 'd.' por 'details.' e '${r}' por '${ratingsHTML}'
+            card.innerHTML = `
+                ${actionsHTML}
+                <img src="${details.poster || 'https://via.placeholder.com/200x300.png'}" alt="${details.title}">
+                <div class="movie-info">
+                    <h3>${details.title} (${details.releaseYear})</h3>
+                    <p><strong>Diretor:</strong> ${details.director}</p>
+                    <p><strong>Duração:</strong> ${details.runtime}</p>
+                    <p><strong>Gênero:</strong> ${details.genre}</p>
+                    ${ratingsHTML}
+                </div>
+            `;
+        
+            const markBtn = card.querySelector('.mark-watched-btn');
+            if (markBtn) markBtn.addEventListener('click', e => { e.stopPropagation(); markMovieAsWatched(movie.tmdbId); });
+        
+            const removeBtn = card.querySelector('.remove-btn');
+            if (removeBtn) removeBtn.addEventListener('click', e => { e.stopPropagation(); if (confirm(`Remover "${details.title}"?`)) removeMovie(movie.tmdbId); });
+        
+            return card;
+        }
             
             // --- RESTANTE DAS FUNÇÕES (sem alterações profundas) ---
             async function loadData() { try { const r = await fetch('/api/data'); if (!r.ok) throw new Error('Erro de rede'); const d = await r.json(); movies = d.movies || []; ratings = d.ratings || { "Maná": {}, "Mandinha": {} }; displayMovies(); updateSpinButton(); } catch (e) { console.error(e); alert("Não foi possível carregar sua lista de filmes. Tente recarregar a página."); } }
@@ -343,3 +356,4 @@
     </script>
 </body>
 </html>
+
