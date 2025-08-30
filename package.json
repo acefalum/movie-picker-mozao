@@ -1,10 +1,10 @@
 {
-    "name": "movie-picker-functions",
-    "version": "1.0.0",
-    "engines": {
-      "node": "18.x"
-    },
-    "dependencies": {
-      "@netlify/neon": "^0.3.0"
-    }
+  "name": "movie-picker-functions",
+  "version": "1.0.0",
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "@netlify/neon": "^0.3.1"
   }
+}
