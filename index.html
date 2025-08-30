@@ -58,6 +58,14 @@
         .search-result-info { flex-grow: 1; text-align: left; }
         .search-result-info h5 { margin: 0 0 5px; }
         .search-result-info p { margin: 0; font-size: 0.8em; color: #ccc; }
+
+        /* --- NOVO CSS ADICIONADO --- */
+        .spectator-mode #show-add-modal-btn,
+        .spectator-mode #show-rating-modal-btn,
+        .spectator-mode .card-actions,
+        .spectator-mode #mark-as-watched-btn {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -150,6 +158,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const tmdbApiKey = '6e14296dafeef1e81523bfa6615e840c';
 
+            // --- NOVO: ESTADO DA SESSÃO ---
+            let isEditor = false;
+            let sessionPassword = null;
+
+            // --- ELEMENTOS DO DOM ---
+            const body = document.body;
             const container = document.querySelector('.container');
             const showAddModalBtn = document.getElementById('show-add-modal-btn');
             const showRatingModalBtn = document.getElementById('show-rating-modal-btn');
@@ -185,92 +199,126 @@
             const exportBtn = document.getElementById('export-btn');
             const importBtn = document.getElementById('import-btn');
             const importFileInput = document.getElementById('import-file-input');
-
+            
             let movies = [];
             let ratings = { "Maná": {}, "Mandinha": {} };
             let currentSelectedMovieId = null;
 
-            async function saveData() {
-    // 1. Pede a senha ao usuário
-    const password = prompt("Para modificar a lista, por favor, insira a senha:");
-
-    if (password === null) { // Se o usuário clicar em "Cancelar"
-        alert("Alteração cancelada.");
-        // Recarrega os dados para reverter visualmente qualquer mudança otimista na UI
-        loadData(); 
-        return; 
-    }
-
-    try {
-        const dataToSave = {
-            movies: movies,
-            ratings: ratings
-        };
-
-        // 2. Envia a senha no cabeçalho da requisição
-        const response = await fetch('/api/data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Auth-Password': password // <-- A SENHA VAI AQUI
-            },
-            body: JSON.stringify(dataToSave),
-        });
-
-        // 3. Verifica se a senha foi aceita pelo backend
-        if (!response.ok) {
-            if (response.status === 401) {
-                alert('Senha incorreta! A alteração não foi salva.');
-            } else {
-                alert('Ocorreu um erro ao salvar. A alteração não foi salva.');
-            }
-            loadData(); // Recarrega os dados para reverter a mudança
-        }
-        // Se deu tudo certo, não precisa fazer nada, a mudança já foi salva.
-
-    } catch (error) {
-        console.error("Erro ao salvar dados:", error);
-        alert("Ocorreu um erro de rede ao salvar suas alterações.");
-        loadData();
-    }
-}
-            async function loadData() {
+            // --- NOVO: LÓGICA DE SESSÃO ---
+            async function initSession() {
+                const password = prompt("Para editar a lista, por favor, insira a senha.\nPara apenas visualizar, clique em 'Cancelar' ou 'OK' com o campo vazio.");
+                if (!password) {
+                    enterSpectatorMode();
+                    return;
+                }
                 try {
-                    const response = await fetch('/api/data'); // Faz um pedido para a nossa "cozinha"
-                    if (!response.ok) {
-                        throw new Error('Não foi possível carregar os dados.');
+                    const response = await fetch('/api/data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'verify_password', password: password })
+                    });
+                    if (response.ok) {
+                        enterEditorMode(password);
+                    } else {
+                        alert('Senha incorreta. Entrando em modo de visualização.');
+                        enterSpectatorMode();
                     }
-                    const data = await response.json();
-                    movies = data.movies || [];
-                    ratings = data.ratings || { "Maná": {}, "Mandinha": {} };
-                    
-                    displayMovies();
-                    updateSpinButton();
                 } catch (error) {
-                    console.error("Erro ao carregar dados:", error);
-                    alert("Não foi possível carregar sua lista de filmes. Tente recarregar a página.");
+                    alert('Erro de conexão. Entrando em modo de visualização.');
+                    enterSpectatorMode();
                 }
             }
+
+            function enterEditorMode(password) {
+                isEditor = true;
+                sessionPassword = password;
+                body.classList.remove('spectator-mode');
+                loadData();
+            }
+
+            function enterSpectatorMode() {
+                isEditor = false;
+                sessionPassword = null;
+                body.classList.add('spectator-mode');
+                loadData();
+            }
+
+            // --- FUNÇÃO saveData MODIFICADA ---
+            async function saveData() {
+                if (!isEditor) {
+                    alert("Você está em modo de visualização e não pode fazer alterações.");
+                    return;
+                }
+                try {
+                    const dataToSave = { movies: movies, ratings: ratings };
+                    const response = await fetch('/api/data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            password: sessionPassword, // Usa a senha guardada na sessão
+                            data: dataToSave
+                        })
+                    });
+                    if (!response.ok) {
+                        alert('Ocorreu um erro ao salvar. Sua sessão pode ter expirado. Por favor, recarregue a página.');
+                        enterSpectatorMode();
+                    }
+                } catch (error) {
+                    console.error("Erro ao salvar dados:", error);
+                }
+            }
+            
+            // --- FUNÇÃO createMovieCard MODIFICADA ---
+            async function createMovieCard(movie) {
+                const details = await fetchMovieDetails(movie.tmdbId);
+                const card = document.createElement('div');
+                card.classList.add('movie-card');
+
+                let actionsHTML = '';
+                if (isEditor) { // Só mostra os botões se for editor
+                    actionsHTML = movie.status === 'to-watch'
+                        ? `<div class="card-actions"><button class="card-action-btn mark-watched-btn" title="Marcar como Assistido">✓</button><button class="card-action-btn remove-btn" title="Remover Filme">🗑️</button></div>`
+                        : `<div class="card-actions"><button class="card-action-btn remove-btn" title="Remover Filme">🗑️</button></div>`;
+                }
+                
+                let ratingsHTML = '';
+                if (movie.status === 'watched') {
+                    const r1 = ratings['Maná']?.[movie.tmdbId] || 0;
+                    const r2 = ratings['Mandinha']?.[movie.tmdbId] || 0;
+                    ratingsHTML = `<div class="watched-movie-ratings"><p><strong>Notas:</strong> Maná: ${'★'.repeat(r1)}${'☆'.repeat(5-r1)} | Mandinha: ${'★'.repeat(r2)}${'☆'.repeat(5-r2)}</p></div>`;
+                }
+                
+                card.innerHTML = `${actionsHTML}<img src="${d.poster||'https://via.placeholder.com/200x300.png'}" alt="${d.title}"><div class="movie-info"><h3>${d.title} (${d.releaseYear})</h3><p><strong>Diretor:</strong> ${d.director}</p><p><strong>Duração:</strong> ${d.runtime}</p><p><strong>Gênero:</strong> ${d.genre}</p>${r}</div>`;
+                
+                const markBtn = card.querySelector('.mark-watched-btn');
+                if (markBtn) markBtn.addEventListener('click', e => { e.stopPropagation(); markMovieAsWatched(movie.tmdbId); });
+                
+                const removeBtn = card.querySelector('.remove-btn');
+                if (removeBtn) removeBtn.addEventListener('click', e => { e.stopPropagation(); if (confirm(`Remover "${details.title}"?`)) removeMovie(movie.tmdbId); });
+                
+                return card;
+            }
+            
+            // --- RESTANTE DAS FUNÇÕES (sem alterações profundas) ---
+            async function loadData() { try { const r = await fetch('/api/data'); if (!r.ok) throw new Error('Erro de rede'); const d = await r.json(); movies = d.movies || []; ratings = d.ratings || { "Maná": {}, "Mandinha": {} }; displayMovies(); updateSpinButton(); } catch (e) { console.error(e); alert("Não foi possível carregar sua lista de filmes. Tente recarregar a página."); } }
             function updateSpinButton() { const twm = movies.filter(m => m.status === 'to-watch'); spinButton.disabled = twm.length === 0; }
             function showModal(modal) { modal.style.display = 'block'; }
             function hideModal(modal) { modal.style.display = 'none'; }
-            
             async function fetchMovieDetails(tmdbId) { const url=`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbApiKey}&language=pt-BR&append_to_response=credits`; try{const r=await fetch(url);if(!r.ok)return{title:"Filme não encontrado"};const d=await r.json();return{title:d.title||"?",releaseYear:d.release_date?d.release_date.substring(0,4):'N/A',poster:d.poster_path?`https://image.tmdb.org/t/p/w500${d.poster_path}`:null,sinopse:d.overview||'Indisponível',director:d.credits?.crew.find(c=>c.job==='Director')?.name||'N/A',runtime:d.runtime?`${d.runtime} min`:'N/A',genre:d.genres?.map(g=>g.name).join(', ')||'N/A'}}catch(e){console.error(e);return{title:"Erro"}} }
             async function displayMovies() { toWatchListDiv.innerHTML='<h3>Carregando...</h3>'; watchedListDiv.innerHTML=''; const twp=movies.filter(m=>m.status==='to-watch').map(createMovieCard); const wp=movies.filter(m=>m.status==='watched').map(createMovieCard); const twc=await Promise.all(twp); const wc=await Promise.all(wp); toWatchListDiv.innerHTML=''; twc.forEach(c=>toWatchListDiv.appendChild(c)); watchedListDiv.innerHTML=''; wc.forEach(c=>watchedListDiv.appendChild(c)); }
-            async function createMovieCard(movie) { const d=await fetchMovieDetails(movie.tmdbId); const c=document.createElement('div'); c.className='movie-card'; let a=movie.status==='to-watch'?`<div class="card-actions"><button class="card-action-btn mark-watched-btn" title="Assistido">✓</button><button class="card-action-btn remove-btn" title="Remover">🗑️</button></div>`:`<div class="card-actions"><button class="card-action-btn remove-btn" title="Remover">🗑️</button></div>`; let r=''; if(movie.status==='watched'){const r1=ratings['Maná']?.[movie.tmdbId]||0; const r2=ratings['Mandinha']?.[movie.tmdbId]||0; r=`<div class="watched-movie-ratings"><p><strong>Notas:</strong> Maná: ${'★'.repeat(r1)}${'☆'.repeat(5-r1)} | Mandinha: ${'★'.repeat(r2)}${'☆'.repeat(5-r2)}</p></div>`} c.innerHTML=`${a}<img src="${d.poster||'https://via.placeholder.com/200x300.png'}" alt="${d.title}"><div class="movie-info"><h3>${d.title} (${d.releaseYear})</h3><p><strong>Diretor:</strong> ${d.director}</p><p><strong>Duração:</strong> ${d.runtime}</p><p><strong>Gênero:</strong> ${d.genre}</p>${r}</div>`; const mb=c.querySelector('.mark-watched-btn'); if(mb)mb.addEventListener('click',e=>{e.stopPropagation();markMovieAsWatched(movie.tmdbId)}); const rb=c.querySelector('.remove-btn'); if(rb)rb.addEventListener('click',e=>{e.stopPropagation();if(confirm(`Remover "${d.title}"?`))removeMovie(movie.tmdbId)}); return c; }
             function markMovieAsWatched(tmdbId) { const i=movies.findIndex(m=>m.tmdbId===tmdbId); if(i!==-1){movies[i].status='watched';saveData();displayMovies();updateSpinButton()} }
             function displayRatings() { const mc=document.getElementById('mana-ratings-content'); const mac=document.getElementById('mandinha-ratings-content'); mc.innerHTML=''; mac.innerHTML=''; const wm=movies.filter(m=>m.status==='watched'); if(wm.length===0){const msg='<p>Nenhum filme assistido para avaliar.</p>'; mc.innerHTML=msg; mac.innerHTML=msg; return} wm.forEach(m=>{mc.appendChild(createRatingItem(m,'Maná'));mac.appendChild(createRatingItem(m,'Mandinha'))}) }
-            function createRatingItem(movie,user) { const i=document.createElement('div'); i.className='rating-movie-item'; const cr=ratings[user]?.[movie.tmdbId]||0; const sh=Array.from({length:5},(_,idx)=>`<span class="star ${idx<cr?'filled':''}" data-value="${idx+1}">★</span>`).join(''); i.innerHTML=`<span>${movie.title} (${movie.releaseYear})</span><div class="stars">${sh}</div>`; i.querySelectorAll('.star').forEach(s=>{s.addEventListener('click',()=>{if(!ratings[user])ratings[user]={};ratings[user][movie.tmdbId]=parseInt(s.dataset.value);saveData();displayRatings()})}); return i; }
+            function createRatingItem(movie,user) { const i=document.createElement('div'); i.className='rating-movie-item'; const cr=ratings[user]?.[movie.tmdbId]||0; const sh=Array.from({length:5},(_,idx)=>`<span class="star ${idx<cr?'filled':''}" data-value="${idx+1}">★</span>`).join(''); i.innerHTML=`<span>${movie.title} (${movie.releaseYear})</span><div class="stars">${sh}</div>`; i.querySelectorAll('.star').forEach(s=>{s.addEventListener('click',()=>{if(!ratings[user])ratings[user]={};ratings[user][movie.tmdbId]=parseInt(s.dataset.value);saveData()})}); return i; }
             function switchTab(tab) { tabToWatch.classList.remove('active'); tabWatched.classList.remove('active'); toWatchContent.classList.remove('active'); watchedContent.classList.remove('active'); if(tab==='watched'){tabWatched.classList.add('active');watchedContent.classList.add('active')}else{tabToWatch.classList.add('active');toWatchContent.classList.add('active')} }
             async function handleSearch() { const q=addInput.value.trim(); if(!q)return; searchResultsList.innerHTML='<p>Buscando...</p>'; const u=`https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(q)}&language=pt-BR`; const r=await fetch(u); const d=await r.json(); searchResultsList.innerHTML=''; if(d.results&&d.results.length>0){d.results.forEach(m=>{const i=document.createElement('div'); i.className='search-result-item'; const y=m.release_date?m.release_date.substring(0,4):'N/A'; i.innerHTML=`<img src="${m.poster_path?`https://image.tmdb.org/t/p/w200${m.poster_path}`:'https://via.placeholder.com/50x75.png'}" alt="P"><div class="search-result-info"><h5>${m.title}</h5><p>${y}</p></div><button class="add-this-movie-btn" data-tmdb-id="${m.id}" data-title="${m.title}" data-year="${y}">Adicionar</button>`; searchResultsList.appendChild(i)})}else{searchResultsList.innerHTML='<p>Nenhum resultado.</p>'} }
-            function addMovieFromSearch(id,t,y) { if(!movies.some(m=>m.tmdbId===id)){movies.push({tmdbId:id,title:t,releaseYear:y,status:'to-watch'});saveData();displayMovies();updateSpinButton();alert(`"${t}" foi adicionado!`)}else{alert(`"${t}" já está na lista.`)} }
-            async function handleBulkAdd() { const titles = bulkAddInput.value.split(',').map(t => t.trim()).filter(Boolean); if (titles.length === 0) return; const statusParaAdicionar = bulkAddWatchedCheckbox.checked ? 'watched' : 'to-watch'; let addedCount = 0; let existingCount = 0; bulkAddBtn.disabled = true; bulkAddBtn.textContent = 'Adicionando...'; for (const title of titles) { const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&language=pt-BR`; const response = await fetch(url); const data = await response.json(); if (data.results && data.results.length > 0) { const movie = data.results[0]; if (!movies.some(m => m.tmdbId === movie.id)) { movies.push({ tmdbId: movie.id, title: movie.title, releaseYear: movie.release_date ? movie.release_date.substring(0, 4) : 'N/A', status: statusParaAdicionar }); addedCount++; } else { existingCount++; } } } saveData(); displayMovies(); updateSpinButton(); let alertMessage = `${addedCount} de ${titles.length} filmes foram adicionados com sucesso!`; if (existingCount > 0) { alertMessage += `\n${existingCount} filmes já estavam na lista.`; } alert(alertMessage); bulkAddInput.value = ''; bulkAddWatchedCheckbox.checked = false; bulkAddBtn.disabled = false; bulkAddBtn.textContent = 'Adicionar em Massa'; }
-            function removeMovie(id) { movies=movies.filter(m=>m.tmdbId!==id); if(ratings["Maná"])delete ratings["Maná"][id]; if(ratings["Mandinha"])delete ratings["Mandinha"][id]; saveData();displayMovies();updateSpinButton(); }
+            function addMovieFromSearch(id,t,y) { if(!movies.some(m=>m.tmdbId===id)){movies.push({tmdbId:id,title:t,releaseYear:y,status:'to-watch'});saveData()}else{alert(`"${t}" já está na lista.`)} }
+            async function handleBulkAdd() { const titles = bulkAddInput.value.split(',').map(t => t.trim()).filter(Boolean); if (titles.length === 0) return; const statusParaAdicionar = bulkAddWatchedCheckbox.checked ? 'watched' : 'to-watch'; let addedCount = 0; let existingCount = 0; bulkAddBtn.disabled = true; bulkAddBtn.textContent = 'Adicionando...'; for (const title of titles) { const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&language=pt-BR`; const response = await fetch(url); const data = await response.json(); if (data.results && data.results.length > 0) { const movie = data.results[0]; if (!movies.some(m => m.tmdbId === movie.id)) { movies.push({ tmdbId: movie.id, title: movie.title, releaseYear: movie.release_date ? movie.release_date.substring(0, 4) : 'N/A', status: statusParaAdicionar }); addedCount++; } else { existingCount++; } } } let alertMessage = `${addedCount} de ${titles.length} filmes foram adicionados com sucesso!`; if (existingCount > 0) { alertMessage += `\n${existingCount} filmes já estavam na lista.`; } alert(alertMessage); bulkAddInput.value = ''; bulkAddWatchedCheckbox.checked = false; bulkAddBtn.disabled = false; bulkAddBtn.textContent = 'Adicionar em Massa'; saveData(); }
+            function removeMovie(id) { movies=movies.filter(m=>m.tmdbId!==id); if(ratings["Maná"])delete ratings["Maná"][id]; if(ratings["Mandinha"])delete ratings["Mandinha"][id]; saveData(); }
             async function spinMovie() { const twm=movies.filter(m=>m.status==='to-watch'); if(twm.length===0)return; container.style.display='none'; if(twm.length<2){currentSelectedMovieId=twm[0].tmdbId;const d=await fetchMovieDetails(currentSelectedMovieId);displayFinalResult(d);return} showModal(rouletteContainer); let ri=[]; for(let i=0;i<5;i++){ri.push(...twm.sort(()=>Math.random()-0.5))} const wi=Math.floor(ri.length/2)+Math.floor(Math.random()*5)-2; const wm=ri[wi]; currentSelectedMovieId=wm.tmdbId; const pp=ri.map(async m=>{const d=await fetchMovieDetails(m.tmdbId);return`<div class="roulette-item"><img src="${d.poster||'https://via.placeholder.com/200x300.png'}" alt="${d.title}"></div>`}); rouletteTrack.innerHTML=(await Promise.all(pp)).join(''); const iw=200; const ro=Math.random()*(iw-40)-((iw-40)/2); const fp=-(wi*iw-iw/2+ro); setTimeout(()=>{rouletteTrack.style.transform=`translateX(${fp}px)`},100); setTimeout(async()=>{const wd=await fetchMovieDetails(wm.tmdbId);hideModal(rouletteContainer);displayFinalResult(wd)},7500); }
             function displayFinalResult(d) { resultPoster.src=d.poster||'https://via.placeholder.com/250x375.png'; resultTitle.textContent=`${d.title} (${d.releaseYear})`; resultDirector.textContent=`Diretor: ${d.director}`; resultRuntime.textContent=`Duração: ${d.runtime}`; resultGenre.textContent=`Gênero: ${d.genre}`; resultSinopse.textContent=`Sinopse: ${d.sinopse}`; resultContainer.style.display='flex'; }
-            function handleMarkAsWatched() { if(!currentSelectedMovieId)return; const i=movies.findIndex(m=>m.tmdbId===currentSelectedMovieId); if(i!==-1){movies[i].status='watched';saveData()} resultContainer.style.display='none'; container.style.display='block'; currentSelectedMovieId=null; switchTab('watched'); displayMovies(); updateSpinButton(); }
+            function handleMarkAsWatched() { if(!currentSelectedMovieId)return; const i=movies.findIndex(m=>m.tmdbId===currentSelectedMovieId); if(i!==-1){movies[i].status='watched';saveData()} }
             function handleExport() { const dataToExport = { movies: movies, ratings: ratings }; const dataStr = JSON.stringify(dataToExport, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_filmes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); alert('Backup exportado com sucesso!'); }
-            function handleImport(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (importedData && importedData.movies && importedData.ratings) { movies = importedData.movies; ratings = importedData.ratings; saveData(); displayMovies(); updateSpinButton(); alert('Dados importados com sucesso!'); hideModal(addModal); } else { alert('Erro: O arquivo de backup parece ser inválido.'); } } catch (error) { console.error("Erro ao importar:", error); alert('Erro: O arquivo não é um JSON válido.'); } finally { importFileInput.value = ''; } }; reader.readAsText(file); }
+            function handleImport(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (importedData && importedData.movies && importedData.ratings) { movies = importedData.movies; ratings = importedData.ratings; saveData(); alert('Dados importados com sucesso!'); hideModal(addModal); } else { alert('Erro: O arquivo de backup parece ser inválido.'); } } catch (error) { console.error("Erro ao importar:", error); alert('Erro: O arquivo não é um JSON válido.'); } finally { importFileInput.value = ''; } }; reader.readAsText(file); }
 
             showAddModalBtn.addEventListener('click', () => showModal(addModal));
             closeAddModal.addEventListener('click', () => { hideModal(addModal); searchResultsList.innerHTML = ''; });
@@ -279,7 +327,7 @@
             searchResultsList.addEventListener('click', (e) => { if (e.target.classList.contains('add-this-movie-btn')) { const btn = e.target; addMovieFromSearch(parseInt(btn.dataset.tmdbId), btn.dataset.title, btn.dataset.year); } });
             bulkAddBtn.addEventListener('click', handleBulkAdd);
             spinButton.addEventListener('click', spinMovie);
-            markAsWatchedBtn.addEventListener('click', handleMarkAsWatched);
+            markAsWatchedBtn.addEventListener('click', () => { handleMarkAsWatched(); resultContainer.style.display = 'none'; container.style.display = 'block'; switchTab('watched'); });
             spinAgainButton.addEventListener('click', () => { resultContainer.style.display = 'none'; container.style.display = 'block'; spinMovie(); });
             tabToWatch.addEventListener('click', () => switchTab('to-watch'));
             tabWatched.addEventListener('click', () => switchTab('watched'));
@@ -290,9 +338,8 @@
             importBtn.addEventListener('click', () => importFileInput.click());
             importFileInput.addEventListener('change', handleImport);
             
-            loadData();
+            initSession();
         });
     </script>
 </body>
-
 </html>
