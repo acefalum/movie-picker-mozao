@@ -132,7 +132,7 @@
         display: none;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start; /* CORREÇÃO: Alinha itens no topo */
+        justify-content: flex-start; 
         position: fixed;
         top: 0;
         left: 0;
@@ -141,9 +141,9 @@
         background-color: rgba(0, 0, 0, 0.85);
         animation: fadeIn 1s;
         z-index: 99;
-        padding: 40px 20px; /* Aumenta o padding superior */
+        padding: 40px 20px; 
         box-sizing: border-box;
-        overflow-y: auto; /* CORREÇÃO: Adiciona barra de rolagem vertical */
+        overflow-y: auto;
     }
     #result-container img {
         width: 250px;
@@ -151,8 +151,8 @@
         object-fit: cover;
         border-radius: 8px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
-        margin-bottom: 20px; /* Reduz a margem inferior */
-        flex-shrink: 0; /* Impede que a imagem encolha */
+        margin-bottom: 20px; 
+        flex-shrink: 0; 
     }
     .result-info {
         max-width: 800px;
@@ -179,10 +179,10 @@
     .result-actions {
         display: flex;
         flex-direction: column;
-        gap: 15px; /* Reduz o espaço entre os botões */
-        margin-top: 30px; /* Aumenta espaço acima dos botões */
-        padding-bottom: 20px; /* Adiciona espaço no final da rolagem */
-        flex-shrink: 0; /* Impede que os botões encolham */
+        gap: 15px;
+        margin-top: 30px; 
+        padding-bottom: 20px; 
+        flex-shrink: 0;
     }
     .result-actions button {
         min-width: 220px;
@@ -456,12 +456,10 @@
             async function handleBulkAdd() { const titles = bulkAddInput.value.split(',').map(t => t.trim()).filter(Boolean); if (titles.length === 0) return; const statusParaAdicionar = bulkAddWatchedCheckbox.checked ? 'watched' : 'to-watch'; let addedCount = 0; let existingCount = 0; bulkAddBtn.disabled = true; bulkAddBtn.textContent = 'Adicionando...'; for (const title of titles) { const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&language=pt-BR`; const response = await fetch(url); const data = await response.json(); if (data.results && data.results.length > 0) { const movie = data.results[0]; if (!movies.some(m => m.tmdbId === movie.id)) { movies.push({ tmdbId: movie.id, title: movie.title, releaseYear: movie.release_date ? movie.release_date.substring(0, 4) : 'N/A', status: statusParaAdicionar }); addedCount++; } else { existingCount++; } } } let alertMessage = `${addedCount} de ${titles.length} filmes foram adicionados com sucesso!`; if (existingCount > 0) { alertMessage += `\n${existingCount} filmes já estavam na lista.`; } alert(alertMessage); bulkAddInput.value = ''; bulkAddWatchedCheckbox.checked = false; bulkAddBtn.disabled = false; bulkAddBtn.textContent = 'Adicionar em Massa'; saveData(); }
             function removeMovie(id) { movies=movies.filter(m=>m.tmdbId!==id); if(ratings["Maná"])delete ratings["Maná"][id]; if(ratings["Mandinha"])delete ratings["Mandinha"][id]; saveData(); }
             
-            // --- FUNÇÃO spinMovie MODIFICADA ---
             async function spinMovie() {
                 const toWatchMovies = movies.filter(m => m.status === 'to-watch');
                 if (toWatchMovies.length === 0) return;
                 
-                // CORREÇÃO: Esconde o container principal, mas não a tela inteira
                 container.style.display = 'none';
 
                 if (toWatchMovies.length < 2) {
@@ -472,36 +470,45 @@
                 }
                 
                 showModal(rouletteContainer);
-                let ri=[];
-                for(let i=0; i<5; i++){ ri.push(...toWatchMovies.sort(()=>Math.random()-0.5)) }
-                const wi=Math.floor(ri.length/2)+Math.floor(Math.random()*5)-2;
-                const wm=ri[wi];
-                currentSelectedMovieId = wm.tmdbId;
-                const pp=ri.map(async m=>{
-                    const d=await fetchMovieDetails(m.tmdbId);
-                    return`<div class="roulette-item"><img src="${d.poster||'https://via.placeholder.com/200x300.png'}" alt="${d.title}"></div>`
+                
+                let rouletteItems = [];
+                for (let i = 0; i < 10; i++) {
+                    rouletteItems.push(...toWatchMovies.sort(() => Math.random() - 0.5));
+                }
+
+                const winnerIndex = Math.floor(rouletteItems.length / 2);
+                const winnerMovie = rouletteItems[winnerIndex];
+                currentSelectedMovieId = winnerMovie.tmdbId;
+
+                const posterPromises = rouletteItems.map(async movie => {
+                    const details = await fetchMovieDetails(movie.tmdbId);
+                    return `<div class="roulette-item"><img src="${details.poster || 'https://via.placeholder.com/200x300.png?text=N/A'}" alt="${details.title}"></div>`;
                 });
-                rouletteTrack.innerHTML=(await Promise.all(pp)).join('');
-                const iw=200;
-                const ro=Math.random()*(iw-40)-((iw-40)/2);
-                const fp=-(wi*iw-iw/2+ro);
-                setTimeout(()=>{rouletteTrack.style.transform=`translateX(${fp}px)`}, 100);
-                setTimeout(async()=>{
-                    const wd=await fetchMovieDetails(wm.tmdbId);
+                rouletteTrack.innerHTML = (await Promise.all(posterPromises)).join('');
+
+                const itemVisibleWidth = 180;
+                const itemMargin = 20;
+                const itemWidthWithGap = itemVisibleWidth + itemMargin;
+                
+                const finalPosition = - (winnerIndex * itemWidthWithGap);
+
+                setTimeout(() => {
+                    rouletteTrack.style.transition = 'none';
+                    rouletteTrack.style.transform = `translateX(0px)`;
+                    setTimeout(() => {
+                        rouletteTrack.style.transition = 'transform 7s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                        rouletteTrack.style.transform = `translateX(${finalPosition}px)`;
+                    }, 50);
+                }, 100);
+
+                setTimeout(async () => {
+                    const winnerDetails = await fetchMovieDetails(winnerMovie.tmdbId);
                     hideModal(rouletteContainer);
-                    displayFinalResult(wd)
+                    displayFinalResult(winnerDetails);
                 }, 7500);
             }
 
-            function displayFinalResult(d) {
-                resultPoster.src = d.poster || 'https://via.placeholder.com/250x375.png';
-                resultTitle.textContent = `${d.title} (${d.releaseYear})`;
-                resultDirector.textContent = `Diretor: ${d.director}`;
-                resultRuntime.textContent = `Duração: ${d.runtime}`;
-                resultGenre.textContent = `Gênero: ${d.genre}`;
-                resultSinopse.textContent = d.sinopse; // Removido 'Sinopse: ' para seguir a imagem
-                resultContainer.style.display = 'flex';
-            }
+            function displayFinalResult(d) { resultPoster.src=d.poster||'https://via.placeholder.com/250x375.png'; resultTitle.textContent=`${d.title} (${d.releaseYear})`; resultDirector.textContent=`Diretor: ${d.director}`; resultRuntime.textContent=`Duração: ${d.runtime}`; resultGenre.textContent=`Gênero: ${d.genre}`; resultSinopse.textContent=d.sinopse; resultContainer.style.display='flex'; }
             function handleMarkAsWatched() { if(!currentSelectedMovieId)return; const i=movies.findIndex(m=>m.tmdbId===currentSelectedMovieId); if(i!==-1){movies[i].status='watched';saveData()} }
             function handleExport() { const dataToExport = { movies: movies, ratings: ratings }; const dataStr = JSON.stringify(dataToExport, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_filmes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); alert('Backup exportado com sucesso!'); }
             function handleImport(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (importedData && importedData.movies && importedData.ratings) { movies = importedData.movies; ratings = importedData.ratings; saveData(); displayMovies(); updateSpinButton(); alert('Dados importados com sucesso!'); hideModal(addModal); } else { alert('Erro: O arquivo de backup parece ser inválido.'); } } catch (error) { console.error("Erro ao importar:", error); alert('Erro: O arquivo não é um JSON válido.'); } finally { importFileInput.value = ''; } }; reader.readAsText(file); }
