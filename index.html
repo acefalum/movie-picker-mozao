@@ -191,24 +191,49 @@
             let currentSelectedMovieId = null;
 
             async function saveData() {
-                try {
-                    const dataToSave = {
-                        movies: movies,
-                        ratings: ratings
-                    };
+    // 1. Pede a senha ao usuário
+    const password = prompt("Para modificar a lista, por favor, insira a senha:");
 
-                    await fetch('/api/data', { // Envia os dados atualizados para a "cozinha"
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(dataToSave),
-                    });
-                } catch (error) {
-                    console.error("Erro ao salvar dados:", error);
-                    alert("Ocorreu um erro ao salvar suas alterações.");
-                }
+    if (password === null) { // Se o usuário clicar em "Cancelar"
+        alert("Alteração cancelada.");
+        // Recarrega os dados para reverter visualmente qualquer mudança otimista na UI
+        loadData(); 
+        return; 
+    }
+
+    try {
+        const dataToSave = {
+            movies: movies,
+            ratings: ratings
+        };
+
+        // 2. Envia a senha no cabeçalho da requisição
+        const response = await fetch('/api/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Auth-Password': password // <-- A SENHA VAI AQUI
+            },
+            body: JSON.stringify(dataToSave),
+        });
+
+        // 3. Verifica se a senha foi aceita pelo backend
+        if (!response.ok) {
+            if (response.status === 401) {
+                alert('Senha incorreta! A alteração não foi salva.');
+            } else {
+                alert('Ocorreu um erro ao salvar. A alteração não foi salva.');
             }
+            loadData(); // Recarrega os dados para reverter a mudança
+        }
+        // Se deu tudo certo, não precisa fazer nada, a mudança já foi salva.
+
+    } catch (error) {
+        console.error("Erro ao salvar dados:", error);
+        alert("Ocorreu um erro de rede ao salvar suas alterações.");
+        loadData();
+    }
+}
             async function loadData() {
                 try {
                     const response = await fetch('/api/data'); // Faz um pedido para a nossa "cozinha"
@@ -269,4 +294,5 @@
         });
     </script>
 </body>
+
 </html>
