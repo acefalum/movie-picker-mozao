@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorteador de Filmes</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
    <style>
     body {
         font-family: 'Segoe UI', Arial, sans-serif;
@@ -18,9 +19,12 @@
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
-    h1 {
-        color: #e50914;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    /* Removido o estilo do h1, pois ele será substituído por uma imagem */
+    #banner-image {
+        max-width: 80%; /* Ajuste o tamanho conforme necessário */
+        height: auto;
+        margin-top: 20px; /* Espaçamento superior */
+        margin-bottom: 20px; /* Espaçamento inferior */
     }
     .container {
         display: block;
@@ -230,18 +234,19 @@
 <body>
 
     <div class="container">
-        <h1>Sorteador de Filmes</h1>
+        <img id="banner-image" src="banner.png" alt="Sorteador de Filmes">
+        
         <div style="margin-bottom: 20px;">
-            <button id="show-add-modal-btn">Gerenciar Lista</button>
-            <button id="show-rating-modal-btn">Dar Notas</button>
+            <button id="show-add-modal-btn">➕ Gerenciar Lista</button>
+            <button id="show-rating-modal-btn">⭐ Dar Notas</button>
         </div>
         <div class="tabs-container">
-            <button class="tab-button active" id="tab-to-watch">A Assistir</button>
-            <button class="tab-button" id="tab-watched">Assistidos</button>
+            <button class="tab-button active" id="tab-to-watch">🎬 A Assistir</button>
+            <button class="tab-button" id="tab-watched">👀 Assistidos</button>
         </div>
         <div id="to-watch-content" class="tab-content active">
             <div id="sortear-section">
-                <button id="spin-button" disabled>Sortear filme</button>
+                <button id="spin-button" disabled>🎲 Sortear filme</button>
             </div>
             <div id="to-watch-list" class="movie-list"></div>
         </div>
@@ -261,20 +266,20 @@
                 <input type="checkbox" id="bulk-add-watched-checkbox">
                 <label for="bulk-add-watched-checkbox">Adicionar diretamente como 'Assistidos'</label>
             </div>
-            <button id="bulk-add-btn">Adicionar em Massa</button>
+            <button id="bulk-add-btn">✔️ Adicionar em Massa</button>
             <hr style="margin: 20px 0;">
             <h4>Busca Avançada</h4>
             <div style="display: flex;">
                 <input type="text" id="add-input" placeholder="Digite o nome do filme..." style="flex-grow: 1; margin-bottom: 0;">
-                <button id="search-btn" style="margin-left: 10px;">Buscar</button>
+                <button id="search-btn" style="margin-left: 10px;">🔍 Buscar</button>
             </div>
             <div id="search-results-list"></div>
             <hr style="margin: 20px 0;">
             <h4>Backup e Restauração</h4>
             <p>Salve sua lista em um arquivo ou carregue um backup.</p>
             <div style="display: flex; gap: 10px;">
-                <button id="export-btn" style="flex-grow: 1; background-color: #28a745;">Exportar Dados</button>
-                <button id="import-btn" style="flex-grow: 1; background-color: #17a2b8;">Importar Dados</button>
+                <button id="export-btn" style="flex-grow: 1; background-color: #28a745;">💾 Exportar Dados</button>
+                <button id="import-btn" style="flex-grow: 1; background-color: #17a2b8;">⬆️ Importar Dados</button>
             </div>
             <input type="file" id="import-file-input" accept=".json" style="display: none;">
         </div>
@@ -303,8 +308,8 @@
             <p id="result-sinopse"></p>
         </div>
         <div class="result-actions">
-            <button id="mark-as-watched-btn">Marcar como Assistido</button>
-            <button id="spin-again-button">Sortear novamente</button>
+            <button id="mark-as-watched-btn">✅ Marcar como Assistido</button>
+            <button id="spin-again-button">🔄 Sortear novamente</button>
         </div>
     </div>
 
@@ -453,7 +458,7 @@
             function switchTab(tab) { tabToWatch.classList.remove('active'); tabWatched.classList.remove('active'); toWatchContent.classList.remove('active'); watchedContent.classList.remove('active'); if(tab==='watched'){tabWatched.classList.add('active');watchedContent.classList.add('active')}else{tabToWatch.classList.add('active');toWatchContent.classList.add('active')} }
             async function handleSearch() { const q=addInput.value.trim(); if(!q)return; searchResultsList.innerHTML='<p>Buscando...</p>'; const u=`https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(q)}&language=pt-BR`; const r=await fetch(u); const d=await r.json(); searchResultsList.innerHTML=''; if(d.results&&d.results.length>0){d.results.forEach(m=>{const i=document.createElement('div'); i.className='search-result-item'; const y=m.release_date?m.release_date.substring(0,4):'N/A'; i.innerHTML=`<img src="${m.poster_path?`https://image.tmdb.org/t/p/w200${m.poster_path}`:'https://via.placeholder.com/50x75.png'}" alt="P"><div class="search-result-info"><h5>${m.title}</h5><p>${y}</p></div><button class="add-this-movie-btn" data-tmdb-id="${m.id}" data-title="${m.title}" data-year="${y}">Adicionar</button>`; searchResultsList.appendChild(i)})}else{searchResultsList.innerHTML='<p>Nenhum resultado.</p>'} }
             function addMovieFromSearch(id,t,y) { if(!movies.some(m=>m.tmdbId===id)){movies.push({tmdbId:id,title:t,releaseYear:y,status:'to-watch'});saveData()}else{alert(`"${t}" já está na lista.`)} }
-            async function handleBulkAdd() { const titles = bulkAddInput.value.split(',').map(t => t.trim()).filter(Boolean); if (titles.length === 0) return; const statusParaAdicionar = bulkAddWatchedCheckbox.checked ? 'watched' : 'to-watch'; let addedCount = 0; let existingCount = 0; bulkAddBtn.disabled = true; bulkAddBtn.textContent = 'Adicionando...'; for (const title of titles) { const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&language=pt-BR`; const response = await fetch(url); const data = await response.json(); if (data.results && data.results.length > 0) { const movie = data.results[0]; if (!movies.some(m => m.tmdbId === movie.id)) { movies.push({ tmdbId: movie.id, title: movie.title, releaseYear: movie.release_date ? movie.release_date.substring(0, 4) : 'N/A', status: statusParaAdicionar }); addedCount++; } else { existingCount++; } } } let alertMessage = `${addedCount} de ${titles.length} filmes foram adicionados com sucesso!`; if (existingCount > 0) { alertMessage += `\n${existingCount} filmes já estavam na lista.`; } alert(alertMessage); bulkAddInput.value = ''; bulkAddWatchedCheckbox.checked = false; bulkAddBtn.disabled = false; bulkAddBtn.textContent = 'Adicionar em Massa'; saveData(); }
+            async function handleBulkAdd() { const titles = bulkAddInput.value.split(',').map(t => t.trim()).filter(Boolean); if (titles.length === 0) return; const statusParaAdicionar = bulkAddWatchedCheckbox.checked ? 'watched' : 'to-watch'; let addedCount = 0; let existingCount = 0; bulkAddBtn.disabled = true; bulkAddBtn.textContent = 'Adicionando...'; for (const title of titles) { const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&language=pt-BR`; const response = await fetch(url); const data = await response.json(); if (data.results && data.results.length > 0) { const movie = data.results[0]; if (!movies.some(m => m.tmdbId === movie.id)) { movies.push({ tmdbId: movie.id, title: movie.title, releaseYear: movie.release_date ? movie.release_date.substring(0, 4) : 'N/A', status: statusParaAdicionar }); addedCount++; } else { existingCount++; } } } let alertMessage = `${addedCount} de ${titles.length} filmes foram adicionados com sucesso!`; if (existingCount > 0) { alertMessage += `\n${existingCount} filmes já estavam na lista.`; } alert(alertMessage); bulkAddInput.value = ''; bulkAddWatchedCheckbox.checked = false; bulkAddBtn.disabled = false; bulkAddBtn.textContent = '✔️ Adicionar em Massa'; saveData(); }
             function removeMovie(id) { movies=movies.filter(m=>m.tmdbId!==id); if(ratings["Maná"])delete ratings["Maná"][id]; if(ratings["Mandinha"])delete ratings["Mandinha"][id]; saveData(); }
             
             async function spinMovie() {
