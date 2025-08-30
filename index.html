@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorteador de Filmes</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
    <style>
     body {
         font-family: 'Segoe UI', Arial, sans-serif;
         background-color: #1a1a1a;
         color: #fff;
         margin: 0;
-        /* CORREÇÃO: Removido padding do body para a tela de resultado ocupar 100% */
         text-align: center;
         background-image: url('background.jpg');
         background-size: cover;
@@ -19,18 +17,15 @@
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
-    /* Removido o estilo do h1, pois ele será substituído por uma imagem */
-    #banner-image {
-        max-width: 80%; /* Ajuste o tamanho conforme necessário */
-        height: auto;
-        margin-top: 20px; /* Espaçamento superior */
-        margin-bottom: 20px; /* Espaçamento inferior */
+    h1 {
+        color: #e50914;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }
     .container {
         display: block;
         max-width: 1200px;
         margin: auto;
-        padding: 20px; /* Adicionado padding aqui */
+        padding: 20px;
     }
     .movie-card {
         position: relative;
@@ -53,147 +48,25 @@
         height: 300px;
         object-fit: cover;
     }
-    .movie-info {
-        padding: 15px;
-    }
-    .movie-info h3 {
-        margin: 0 0 5px;
-        font-size: 1.1em;
-    }
-    .movie-info p {
-        margin: 0 0 5px;
-        font-size: 0.9em;
-        line-height: 1.3;
-    }
-    button {
-        background-color: #e50914;
-        color: #fff;
-        border: none;
-        padding: 12px 24px;
-        font-size: 1em;
-        cursor: pointer;
-        border-radius: 5px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s;
-    }
-    button:hover:not(:disabled) {
-        background-color: #b2070c;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
-    }
-    button:disabled {
-        background-color: #666;
-        cursor: not-allowed;
-        box-shadow: none;
-        transform: none;
-    }
-    #sortear-section button {
-        background-color: #0d83e2;
-        padding: 20px 40px;
-        font-size: 1.5em;
-        border-radius: 8px;
-        font-weight: bold;
-    }
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 100;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.7);
-        animation: fadeIn 0.3s;
-    }
-    .modal-content {
-        background-color: #2e2e2e;
-        margin: 5% auto;
-        padding: 20px;
-        border-radius: 8px;
-        width: 80%;
-        max-width: 600px;
-        position: relative;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-    }
-    .close-button {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .modal-content input[type="text"], .modal-content textarea {
-        width: calc(100% - 22px);
-        padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #555;
-        border-radius: 4px;
-        background-color: #3e3e3e;
-        color: #fff;
-    }
-    #result-container {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start; 
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.85);
-        animation: fadeIn 1s;
-        z-index: 99;
-        padding: 40px 20px; 
-        box-sizing: border-box;
-        overflow-y: auto;
-    }
-    #result-container img {
-        width: 250px;
-        height: 375px;
-        object-fit: cover;
-        border-radius: 8px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
-        margin-bottom: 20px; 
-        flex-shrink: 0; 
-    }
-    .result-info {
-        max-width: 800px;
-        text-align: center;
-        padding: 0 20px;
-    }
-    .result-info h2 {
-        font-size: 2.2em;
-        color: #e50914;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-        margin-bottom: 15px;
-    }
-    .result-info p {
-        font-size: 1.1em;
-        margin-bottom: 10px;
-        line-height: 1.5;
-    }
-    #result-sinopse {
-        font-style: italic;
-        color: #ccc;
-        margin-top: 20px;
-        font-size: 1em;
-    }
-    .result-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 30px; 
-        padding-bottom: 20px; 
-        flex-shrink: 0;
-    }
-    .result-actions button {
-        min-width: 220px;
-        padding: 15px 30px;
-        font-size: 1.1em;
-        border-radius: 8px;
-    }
+    .movie-info { padding: 15px; }
+    .movie-info h3 { margin: 0 0 5px; font-size: 1.1em; }
+    .movie-info p { margin: 0 0 5px; font-size: 0.9em; line-height: 1.3; }
+    button { background-color: #e50914; color: #fff; border: none; padding: 12px 24px; font-size: 1em; cursor: pointer; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); transition: all 0.3s; }
+    button:hover:not(:disabled) { background-color: #b2070c; transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); }
+    button:disabled { background-color: #666; cursor: not-allowed; box-shadow: none; transform: none; }
+    #sortear-section button { background-color: #0d83e2; padding: 20px 40px; font-size: 1.5em; border-radius: 8px; font-weight: bold; }
+    .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); animation: fadeIn 0.3s; }
+    .modal-content { background-color: #2e2e2e; margin: 5% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 600px; position: relative; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
+    .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .modal-content input[type="text"], .modal-content textarea { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #555; border-radius: 4px; background-color: #3e3e3e; color: #fff; }
+    #result-container { display: none; flex-direction: column; align-items: center; justify-content: flex-start; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); animation: fadeIn 1s; z-index: 99; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; }
+    #result-container img { width: 250px; height: 375px; object-fit: cover; border-radius: 8px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7); margin-bottom: 20px; flex-shrink: 0; }
+    .result-info { max-width: 800px; text-align: center; padding: 0 20px; }
+    .result-info h2 { font-size: 2.2em; color: #e50914; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); margin-bottom: 15px; }
+    .result-info p { font-size: 1.1em; margin-bottom: 10px; line-height: 1.5; }
+    #result-sinopse { font-style: italic; color: #ccc; margin-top: 20px; font-size: 1em; }
+    .result-actions { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; padding-bottom: 20px; flex-shrink: 0; }
+    .result-actions button { min-width: 220px; padding: 15px 30px; font-size: 1.1em; border-radius: 8px; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .tabs-container { display: flex; justify-content: center; border-bottom: 2px solid #444; margin-bottom: 30px; }
     .tab-button { background-color: transparent; border: none; color: #aaa; padding: 15px 30px; font-size: 1.2em; cursor: pointer; transition: color 0.3s, border-bottom 0.3s; border-bottom: 3px solid transparent; margin: 0; }
@@ -234,8 +107,7 @@
 <body>
 
     <div class="container">
-        <img id="banner-image" src="banner.png" alt="Sorteador de Filmes">
-        
+        <h1>Sorteador de Filmes</h1>
         <div style="margin-bottom: 20px;">
             <button id="show-add-modal-btn">➕ Gerenciar Lista</button>
             <button id="show-rating-modal-btn">⭐ Dar Notas</button>
@@ -446,77 +318,104 @@
                     </div>
                 `;
                 const markBtn = card.querySelector('.mark-watched-btn');
-                if(markBtn) markBtn.addEventListener('click', e => { e.stopPropagation(); markMovieAsWatched(movie.tmdbId); });
+                if(markBtn) markBtn.addEventListener('click', async e => { e.stopPropagation(); await markMovieAsWatched(movie.tmdbId); });
                 const removeBtn = card.querySelector('.remove-btn');
-                if(removeBtn) removeBtn.addEventListener('click', e => { e.stopPropagation(); if (confirm(`Remover "${details.title}"?`)) removeMovie(movie.tmdbId); });
+                if(removeBtn) removeBtn.addEventListener('click', async e => { e.stopPropagation(); if (confirm(`Remover "${details.title}"?`)) await removeMovie(movie.tmdbId); });
                 return card;
             }
 
-            function markMovieAsWatched(tmdbId) { const i=movies.findIndex(m=>m.tmdbId===tmdbId); if(i!==-1){movies[i].status='watched';saveData()} }
+            async function markMovieAsWatched(tmdbId) { const i=movies.findIndex(m=>m.tmdbId===tmdbId); if(i!==-1){movies[i].status='watched'; await saveData(); displayMovies(); updateSpinButton();} }
             function displayRatings() { const mc=document.getElementById('mana-ratings-content'); const mac=document.getElementById('mandinha-ratings-content'); mc.innerHTML=''; mac.innerHTML=''; const wm=movies.filter(m=>m.status==='watched'); if(wm.length===0){const msg='<p>Nenhum filme assistido para avaliar.</p>'; mc.innerHTML=msg; mac.innerHTML=msg; return} wm.forEach(m=>{mc.appendChild(createRatingItem(m,'Maná'));mac.appendChild(createRatingItem(m,'Mandinha'))}) }
-            function createRatingItem(movie,user) { const i=document.createElement('div'); i.className='rating-movie-item'; const cr=ratings[user]?.[movie.tmdbId]||0; const sh=Array.from({length:5},(_,idx)=>`<span class="star ${idx<cr?'filled':''}" data-value="${idx+1}">★</span>`).join(''); i.innerHTML=`<span>${movie.title} (${movie.releaseYear})</span><div class="stars">${sh}</div>`; i.querySelectorAll('.star').forEach(s=>{s.addEventListener('click',()=>{if(!ratings[user])ratings[user]={};ratings[user][movie.tmdbId]=parseInt(s.dataset.value);saveData()})}); return i; }
-            function switchTab(tab) { tabToWatch.classList.remove('active'); tabWatched.classList.remove('active'); toWatchContent.classList.remove('active'); watchedContent.classList.remove('active'); if(tab==='watched'){tabWatched.classList.add('active');watchedContent.classList.add('active')}else{tabToWatch.classList.add('active');toWatchContent.classList.add('active')} }
-            async function handleSearch() { const q=addInput.value.trim(); if(!q)return; searchResultsList.innerHTML='<p>Buscando...</p>'; const u=`https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(q)}&language=pt-BR`; const r=await fetch(u); const d=await r.json(); searchResultsList.innerHTML=''; if(d.results&&d.results.length>0){d.results.forEach(m=>{const i=document.createElement('div'); i.className='search-result-item'; const y=m.release_date?m.release_date.substring(0,4):'N/A'; i.innerHTML=`<img src="${m.poster_path?`https://image.tmdb.org/t/p/w200${m.poster_path}`:'https://via.placeholder.com/50x75.png'}" alt="P"><div class="search-result-info"><h5>${m.title}</h5><p>${y}</p></div><button class="add-this-movie-btn" data-tmdb-id="${m.id}" data-title="${m.title}" data-year="${y}">Adicionar</button>`; searchResultsList.appendChild(i)})}else{searchResultsList.innerHTML='<p>Nenhum resultado.</p>'} }
-            function addMovieFromSearch(id,t,y) { if(!movies.some(m=>m.tmdbId===id)){movies.push({tmdbId:id,title:t,releaseYear:y,status:'to-watch'});saveData()}else{alert(`"${t}" já está na lista.`)} }
-            async function handleBulkAdd() { const titles = bulkAddInput.value.split(',').map(t => t.trim()).filter(Boolean); if (titles.length === 0) return; const statusParaAdicionar = bulkAddWatchedCheckbox.checked ? 'watched' : 'to-watch'; let addedCount = 0; let existingCount = 0; bulkAddBtn.disabled = true; bulkAddBtn.textContent = 'Adicionando...'; for (const title of titles) { const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&language=pt-BR`; const response = await fetch(url); const data = await response.json(); if (data.results && data.results.length > 0) { const movie = data.results[0]; if (!movies.some(m => m.tmdbId === movie.id)) { movies.push({ tmdbId: movie.id, title: movie.title, releaseYear: movie.release_date ? movie.release_date.substring(0, 4) : 'N/A', status: statusParaAdicionar }); addedCount++; } else { existingCount++; } } } let alertMessage = `${addedCount} de ${titles.length} filmes foram adicionados com sucesso!`; if (existingCount > 0) { alertMessage += `\n${existingCount} filmes já estavam na lista.`; } alert(alertMessage); bulkAddInput.value = ''; bulkAddWatchedCheckbox.checked = false; bulkAddBtn.disabled = false; bulkAddBtn.textContent = '✔️ Adicionar em Massa'; saveData(); }
-            function removeMovie(id) { movies=movies.filter(m=>m.tmdbId!==id); if(ratings["Maná"])delete ratings["Maná"][id]; if(ratings["Mandinha"])delete ratings["Mandinha"][id]; saveData(); }
             
-            async function spinMovie() {
-                const toWatchMovies = movies.filter(m => m.status === 'to-watch');
-                if (toWatchMovies.length === 0) return;
-                
-                container.style.display = 'none';
-
-                if (toWatchMovies.length < 2) {
-                    currentSelectedMovieId = toWatchMovies[0].tmdbId;
-                    const details = await fetchMovieDetails(currentSelectedMovieId);
-                    displayFinalResult(details);
-                    return;
-                }
-                
-                showModal(rouletteContainer);
-                
-                let rouletteItems = [];
-                for (let i = 0; i < 10; i++) {
-                    rouletteItems.push(...toWatchMovies.sort(() => Math.random() - 0.5));
-                }
-
-                const winnerIndex = Math.floor(rouletteItems.length / 2);
-                const winnerMovie = rouletteItems[winnerIndex];
-                currentSelectedMovieId = winnerMovie.tmdbId;
-
-                const posterPromises = rouletteItems.map(async movie => {
-                    const details = await fetchMovieDetails(movie.tmdbId);
-                    return `<div class="roulette-item"><img src="${details.poster || 'https://via.placeholder.com/200x300.png?text=N/A'}" alt="${details.title}"></div>`;
+            function createRatingItem(movie,user) {
+                const i=document.createElement('div');
+                i.className='rating-movie-item';
+                const cr=ratings[user]?.[movie.tmdbId]||0;
+                const sh=Array.from({length:5},(_,idx)=>`<span class="star ${idx<cr?'filled':''}" data-value="${idx+1}">★</span>`).join('');
+                i.innerHTML=`<span>${movie.title} (${movie.releaseYear})</span><div class="stars">${sh}</div>`;
+                i.querySelectorAll('.star').forEach(s=>{
+                    s.addEventListener('click', async ()=>{
+                        if(!ratings[user])ratings[user]={};
+                        ratings[user][movie.tmdbId]=parseInt(s.dataset.value);
+                        await saveData();
+                        displayRatings(); // Apenas redesenha o modal, que é mais rápido
+                    })
                 });
-                rouletteTrack.innerHTML = (await Promise.all(posterPromises)).join('');
-
-                const itemVisibleWidth = 180;
-                const itemMargin = 20;
-                const itemWidthWithGap = itemVisibleWidth + itemMargin;
-                
-                const finalPosition = - (winnerIndex * itemWidthWithGap);
-
-                setTimeout(() => {
-                    rouletteTrack.style.transition = 'none';
-                    rouletteTrack.style.transform = `translateX(0px)`;
-                    setTimeout(() => {
-                        rouletteTrack.style.transition = 'transform 7s cubic-bezier(0.25, 0.1, 0.25, 1)';
-                        rouletteTrack.style.transform = `translateX(${finalPosition}px)`;
-                    }, 50);
-                }, 100);
-
-                setTimeout(async () => {
-                    const winnerDetails = await fetchMovieDetails(winnerMovie.tmdbId);
-                    hideModal(rouletteContainer);
-                    displayFinalResult(winnerDetails);
-                }, 7500);
+                return i;
             }
 
+            function switchTab(tab) { tabToWatch.classList.remove('active'); tabWatched.classList.remove('active'); toWatchContent.classList.remove('active'); watchedContent.classList.remove('active'); if(tab==='watched'){tabWatched.classList.add('active');watchedContent.classList.add('active')}else{tabToWatch.classList.add('active');toWatchContent.classList.add('active')} }
+            async function handleSearch() { const q=addInput.value.trim(); if(!q)return; searchResultsList.innerHTML='<p>Buscando...</p>'; const u=`https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(q)}&language=pt-BR`; const r=await fetch(u); const d=await r.json(); searchResultsList.innerHTML=''; if(d.results&&d.results.length>0){d.results.forEach(m=>{const i=document.createElement('div'); i.className='search-result-item'; const y=m.release_date?m.release_date.substring(0,4):'N/A'; i.innerHTML=`<img src="${m.poster_path?`https://image.tmdb.org/t/p/w200${m.poster_path}`:'https://via.placeholder.com/50x75.png'}" alt="P"><div class="search-result-info"><h5>${m.title}</h5><p>${y}</p></div><button class="add-this-movie-btn" data-tmdb-id="${m.id}" data-title="${m.title}" data-year="${y}">Adicionar</button>`; searchResultsList.appendChild(i)})}else{searchResultsList.innerHTML='<p>Nenhum resultado.</p>'} }
+            
+            async function addMovieFromSearch(id,t,y) {
+                if(!movies.some(m=>m.tmdbId===id)){
+                    movies.push({tmdbId:id,title:t,releaseYear:y,status:'to-watch'});
+                    await saveData();
+                    displayMovies();
+                    updateSpinButton();
+                    alert(`"${t}" foi adicionado!`);
+                } else {
+                    alert(`"${t}" já está na lista.`);
+                }
+            }
+            
+            async function handleBulkAdd() {
+                const titles = bulkAddInput.value.split(',').map(t => t.trim()).filter(Boolean);
+                if (titles.length === 0) return;
+                const statusParaAdicionar = bulkAddWatchedCheckbox.checked ? 'watched' : 'to-watch';
+                let addedCount = 0;
+                let existingCount = 0;
+                bulkAddBtn.disabled = true;
+                bulkAddBtn.textContent = 'Adicionando...';
+                for (const title of titles) {
+                    const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&language=pt-BR`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.results && data.results.length > 0) {
+                        const movie = data.results[0];
+                        if (!movies.some(m => m.tmdbId === movie.id)) {
+                            movies.push({ tmdbId: movie.id, title: movie.title, releaseYear: movie.release_date ? movie.release_date.substring(0, 4) : 'N/A', status: statusParaAdicionar });
+                            addedCount++;
+                        } else {
+                            existingCount++;
+                        }
+                    }
+                }
+                let alertMessage = `${addedCount} de ${titles.length} filmes foram adicionados com sucesso!`;
+                if (existingCount > 0) { alertMessage += `\n${existingCount} filmes já estavam na lista.`; }
+                alert(alertMessage);
+                bulkAddInput.value = '';
+                bulkAddWatchedCheckbox.checked = false;
+                bulkAddBtn.disabled = false;
+                bulkAddBtn.textContent = '✔️ Adicionar em Massa';
+                await saveData();
+                displayMovies();
+                updateSpinButton();
+            }
+
+            async function removeMovie(id) {
+                movies=movies.filter(m=>m.tmdbId!==id);
+                if(ratings["Maná"])delete ratings["Maná"][id];
+                if(ratings["Mandinha"])delete ratings["Mandinha"][id];
+                await saveData();
+                displayMovies();
+                updateSpinButton();
+            }
+            
+            async function spinMovie() { const twm=movies.filter(m=>m.status==='to-watch'); if(twm.length===0)return; container.style.display='none'; if(twm.length<2){currentSelectedMovieId=twm[0].tmdbId;const d=await fetchMovieDetails(currentSelectedMovieId);displayFinalResult(d);return} showModal(rouletteContainer); let ri=[]; for(let i=0;i<10;i++){ri.push(...twm.sort(()=>Math.random()-0.5))} const wi=Math.floor(ri.length/2); const wm=ri[wi]; currentSelectedMovieId=wm.tmdbId; const pp=ri.map(async m=>{const d=await fetchMovieDetails(m.tmdbId);return`<div class="roulette-item"><img src="${d.poster||'https://via.placeholder.com/200x300.png'}" alt="${d.title}"></div>`}); rouletteTrack.innerHTML=(await Promise.all(pp)).join(''); const itemVisibleWidth=180; const itemMargin=20; const itemWidthWithGap=itemVisibleWidth+itemMargin; const finalPosition=-(wi*itemWidthWithGap); setTimeout(()=>{rouletteTrack.style.transition='none';rouletteTrack.style.transform=`translateX(0px)`;setTimeout(()=>{rouletteTrack.style.transition='transform 7s cubic-bezier(0.25, 0.1, 0.25, 1)';rouletteTrack.style.transform=`translateX(${finalPosition}px)`},50)},100); setTimeout(async()=>{const wd=await fetchMovieDetails(wm.tmdbId);hideModal(rouletteContainer);displayFinalResult(wd)},7500); }
             function displayFinalResult(d) { resultPoster.src=d.poster||'https://via.placeholder.com/250x375.png'; resultTitle.textContent=`${d.title} (${d.releaseYear})`; resultDirector.textContent=`Diretor: ${d.director}`; resultRuntime.textContent=`Duração: ${d.runtime}`; resultGenre.textContent=`Gênero: ${d.genre}`; resultSinopse.textContent=d.sinopse; resultContainer.style.display='flex'; }
-            function handleMarkAsWatched() { if(!currentSelectedMovieId)return; const i=movies.findIndex(m=>m.tmdbId===currentSelectedMovieId); if(i!==-1){movies[i].status='watched';saveData()} }
+            
+            async function handleMarkAsWatched() {
+                if(!currentSelectedMovieId)return;
+                const i=movies.findIndex(m=>m.tmdbId===currentSelectedMovieId);
+                if(i!==-1){
+                    movies[i].status='watched';
+                    await saveData();
+                }
+            }
+            
             function handleExport() { const dataToExport = { movies: movies, ratings: ratings }; const dataStr = JSON.stringify(dataToExport, null, 2); const blob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_filmes_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); alert('Backup exportado com sucesso!'); }
-            function handleImport(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (importedData && importedData.movies && importedData.ratings) { movies = importedData.movies; ratings = importedData.ratings; saveData(); displayMovies(); updateSpinButton(); alert('Dados importados com sucesso!'); hideModal(addModal); } else { alert('Erro: O arquivo de backup parece ser inválido.'); } } catch (error) { console.error("Erro ao importar:", error); alert('Erro: O arquivo não é um JSON válido.'); } finally { importFileInput.value = ''; } }; reader.readAsText(file); }
+            async function handleImport(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = async function(e) { try { const importedData = JSON.parse(e.target.result); if (importedData && importedData.movies && importedData.ratings) { movies = importedData.movies; ratings = importedData.ratings; await saveData(); displayMovies(); updateSpinButton(); alert('Dados importados com sucesso!'); hideModal(addModal); } else { alert('Erro: O arquivo de backup parece ser inválido.'); } } catch (error) { console.error("Erro ao importar:", error); alert('Erro: O arquivo não é um JSON válido.'); } finally { importFileInput.value = ''; } }; reader.readAsText(file); }
 
             showAddModalBtn.addEventListener('click', () => showModal(addModal));
             closeAddModal.addEventListener('click', () => { hideModal(addModal); searchResultsList.innerHTML = ''; });
@@ -525,7 +424,7 @@
             searchResultsList.addEventListener('click', (e) => { if (e.target.classList.contains('add-this-movie-btn')) { const btn = e.target; addMovieFromSearch(parseInt(btn.dataset.tmdbId), btn.dataset.title, btn.dataset.year); } });
             bulkAddBtn.addEventListener('click', handleBulkAdd);
             spinButton.addEventListener('click', spinMovie);
-            markAsWatchedBtn.addEventListener('click', () => { handleMarkAsWatched(); resultContainer.style.display = 'none'; container.style.display = 'block'; switchTab('watched'); });
+            markAsWatchedBtn.addEventListener('click', async () => { await handleMarkAsWatched(); resultContainer.style.display = 'none'; container.style.display = 'block'; switchTab('watched'); displayMovies(); updateSpinButton(); });
             spinAgainButton.addEventListener('click', () => { resultContainer.style.display = 'none'; container.style.display = 'block'; spinMovie(); });
             tabToWatch.addEventListener('click', () => switchTab('to-watch'));
             tabWatched.addEventListener('click', () => switchTab('watched'));
