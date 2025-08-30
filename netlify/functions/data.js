@@ -1,5 +1,3 @@
-// Arquivo: netlify/functions/data.js
-
 import pg from 'pg';
 
 const { Pool } = pg;
@@ -8,45 +6,65 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+function getGroupId(groupName) {
+  if (groupName === 'group_one') return 1;
+  if (groupName === 'group_two') return 2;
+  return null;
+}
+
 async function ensureTableExists() {
-  await pool.query(`CREATE TABLE IF NOT EXISTS movie_data (id INT PRIMARY KEY DEFAULT 1, data JSONB);`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS movie_data (id INT PRIMARY KEY, data JSONB);`);
 }
 
 export default async (req, context) => {
   try {
     await ensureTableExists();
+    
+    // Para requisições GET, o corpo pode não existir
+    const body = req.method === 'POST' ? await req.json() : {};
+
+    if (req.method === 'POST' && body.action === 'verify_password') {
+      const { password } = body;
+      const passOne = process.env.SITE_PASSWORD;
+      const passTwo = process.env.OTHER_KEY;
+
+      if (password === passOne) {
+        return new Response(JSON.stringify({ success: true, group: 'group_one', users: ['Maná', 'Mandinha'] }), { status: 200 });
+      }
+      if (password === passTwo) {
+        return new Response(JSON.stringify({ success: true, group: 'group_two', users: ['Marcelo', 'Isabela'] }), { status: 200 });
+      }
+      return new Response(JSON.stringify({ success: false, message: 'Senha incorreta.' }), { status: 401 });
+    }
+
+    const group = req.headers.get('x-user-group');
+    const groupId = getGroupId(group);
+    if (!groupId) return new Response(JSON.stringify({ message: 'Grupo inválido.' }), { status: 400 });
 
     if (req.method === 'GET') {
-      const { rows } = await pool.query('SELECT data FROM movie_data WHERE id = 1');
-      const responseData = rows[0]?.data || { movies: [], ratings: { "Maná": {}, "Mandinha": {} } };
+      const { rows } = await pool.query('SELECT data FROM movie_data WHERE id = $1', [groupId]);
+      const responseData = rows[0]?.data || { movies: [], ratings: {} };
       return new Response(JSON.stringify(responseData), { headers: { 'Content-Type': 'application/json' } });
     }
 
     if (req.method === 'POST') {
-      const body = await req.json();
-      const suppliedPassword = body.password;
-      const correctPassword = process.env.SITE_PASSWORD;
+      const { password, data } = body;
+      const passOne = process.env.SITE_PASSWORD;
+      const passTwo = process.env.OTHER_KEY;
+      const isAuthorized = (password === passOne && group === 'group_one') || (password === passTwo && group === 'group_two');
 
-      if (!correctPassword || suppliedPassword !== correctPassword) {
-        return new Response(JSON.stringify({ message: 'Senha incorreta.' }), { status: 401 });
+      if (!isAuthorized) {
+        return new Response(JSON.stringify({ message: 'Não autorizado.' }), { status: 401 });
       }
 
-      // Se a ação for APENAS verificar a senha, responda com sucesso e pare aqui.
-      if (body.action === 'verify_password') {
-        return new Response(JSON.stringify({ message: 'Senha correta' }), { status: 200 });
-      }
-      
-      // Se for uma ação de salvar, continue para salvar os dados
-      if (body.data) {
-        await pool.query({
-          text: `INSERT INTO movie_data (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data;`,
-          values: [JSON.stringify(body.data)],
-        });
-        return new Response(JSON.stringify({ message: 'Dados salvos com sucesso!' }), { status: 200 });
-      }
+      await pool.query({
+        text: `INSERT INTO movie_data (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data;`,
+        values: [groupId, JSON.stringify(data)],
+      });
+      return new Response(JSON.stringify({ message: 'Dados salvos com sucesso!' }), { status: 200 });
     }
 
-    return new Response(JSON.stringify({ message: 'Método não permitido ou dados inválidos' }), { status: 400 });
+    return new Response(JSON.stringify({ message: 'Requisição inválida.' }), { status: 400 });
 
   } catch (error) {
     console.error('Erro na função:', error);
