@@ -9,47 +9,44 @@ const pool = new Pool({
 });
 
 async function ensureTableExists() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS movie_data (
-      id INT PRIMARY KEY DEFAULT 1,
-      data JSONB
-    );
-  `);
+  await pool.query(`CREATE TABLE IF NOT EXISTS movie_data (id INT PRIMARY KEY DEFAULT 1, data JSONB);`);
 }
 
 export default async (req, context) => {
   try {
     await ensureTableExists();
 
-    // LEITURA DE DADOS (GET) - continua público, sem senha
     if (req.method === 'GET') {
       const { rows } = await pool.query('SELECT data FROM movie_data WHERE id = 1');
       const responseData = rows[0]?.data || { movies: [], ratings: { "Maná": {}, "Mandinha": {} } };
       return new Response(JSON.stringify(responseData), { headers: { 'Content-Type': 'application/json' } });
     }
 
-    // ALTERAÇÃO DE DADOS (POST) - agora requer senha
     if (req.method === 'POST') {
-      // --- NOSSO "SEGURANÇA" ESTÁ AQUI ---
-      const suppliedPassword = req.headers.get('x-auth-password'); // Pega a senha enviada pelo frontend
-      const correctPassword = process.env.SITE_PASSWORD; // Pega a senha secreta do Netlify
+      const body = await req.json();
+      const suppliedPassword = body.password;
+      const correctPassword = process.env.SITE_PASSWORD;
 
       if (!correctPassword || suppliedPassword !== correctPassword) {
-        // Se a senha estiver errada ou não for fornecida, retorna um erro de "Não Autorizado"
-        return new Response(JSON.stringify({ message: 'Senha incorreta ou não fornecida.' }), { status: 401 });
+        return new Response(JSON.stringify({ message: 'Senha incorreta.' }), { status: 401 });
       }
-      // --- FIM DA VERIFICAÇÃO ---
 
-      // Se a senha estiver correta, o código continua normalmente...
-      const body = await req.json();
-      await pool.query({
-        text: `INSERT INTO movie_data (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data;`,
-        values: [JSON.stringify(body)],
-      });
-      return new Response(JSON.stringify({ message: 'Dados salvos com sucesso!' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      // Se a ação for APENAS verificar a senha, responda com sucesso e pare aqui.
+      if (body.action === 'verify_password') {
+        return new Response(JSON.stringify({ message: 'Senha correta' }), { status: 200 });
+      }
+      
+      // Se for uma ação de salvar, continue para salvar os dados
+      if (body.data) {
+        await pool.query({
+          text: `INSERT INTO movie_data (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data;`,
+          values: [JSON.stringify(body.data)],
+        });
+        return new Response(JSON.stringify({ message: 'Dados salvos com sucesso!' }), { status: 200 });
+      }
     }
 
-    return new Response(JSON.stringify({ message: 'Método não permitido' }), { status: 405 });
+    return new Response(JSON.stringify({ message: 'Método não permitido ou dados inválidos' }), { status: 400 });
 
   } catch (error) {
     console.error('Erro na função:', error);
